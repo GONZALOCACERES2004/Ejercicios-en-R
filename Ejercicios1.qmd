@@ -1,0 +1,132 @@
+---
+title: "Ejercicios1"
+format: html
+editor: visual
+---
+
+## Peso al nacer
+
+Leer el dataset que se encuentra en data/birthweight_reduced.csv.
+
+```{r}
+bwt <- read.csv("./data/birthweight_reduced.csv")
+```
+
+Convertir la columna smoker en un factor con los valores: 1- 'YES' 0- 'NO'
+
+```{r}
+bwt$smoker<-factor(bwt$smoker,labels =c("NO","YES"))
+```
+
+Para la columna Birthweight:
+
+1- Calcular media, mediana y los cuartiles
+
+```{r}
+paste("Birthweight Media: ",mean(bwt$Birthweight))
+paste("Birthweight Mediana: ",median(bwt$Birthweight))
+paste("Birthweight Cuartiles: ")
+quantile(bwt$Birthweight)
+
+```
+
+2- Dibujar un Boxplot. Y decir cuales son los outliers, y ver si veis alguna caracteristica importante.
+
+```{r}
+b=boxplot(bwt$Birthweight,range = 1)
+paste("Los outliers son:") 
+b$out
+paste("Están en la posición:")
+which(bwt$Birthweight %in% b$out)
+```
+
+3-¿Cuantas madres fumadoras y no fumadoras hay?
+
+```{r}
+fumadoras<-bwt[which(bwt$smoker=='YES'),]
+no_fumadoras<-bwt[which(bwt$smoker=='NO'),]
+paste("Hay",nrow(fumadoras), "Madres fumadoras")
+paste("Hay",nrow(no_fumadoras), "Madres no fumadoras")
+```
+
+4- ¿Cual es el peso medio de los niños al nacer para las madres fumadoras y no fumadoras?
+
+```{r}
+paste("El peso medio de los niños al nacer para las madres fumadoras es:",round(mean(fumadoras$Birthweight),2))
+paste("El peso medio de los niños al nacer para las madres no fumadoras es:",round(mean(no_fumadoras$Birthweight),2))
+```
+
+5- ¿Cual de los dos grupos presenta una varianza mayor?
+
+```{r}
+(paste("Varianza para hijos de madres fumadoras:",var(fumadoras$Birthweight)))
+(paste("Varianza para hijos de madres no fumadoras:",var(no_fumadoras$Birthweight)))
+```
+
+6- Pinta un Boxplot del peso para cada uno de los grupos
+
+```{r}
+boxplot(fumadoras$Birthweight,range = 1)
+
+
+boxplot(no_fumadoras$Birthweight,range = 1)
+
+
+```
+
+## Ciudades soleadas
+
+Vamos a leer el dataset cities_sunny. Muestra las horas de sol medias que tienen diferentes ciudades en un mes determinado.
+
+```{r}
+df_sunny <- read.csv("./data/cities_sunny.csv")
+```
+
+1- ¿Cuantos paises hay? ¿Cuantas Ciudades?
+
+```{r}
+#length(unique(df_sunny$Country))
+#length(unique(df_sunny$City))
+paste("Hay", length(table(df_sunny$Country)), "países")
+paste("Hay", length(table(df_sunny$City)), "ciudades")
+```
+
+2- ¿Cual es la ciudad que más horas de sol tiene en enero?
+
+```{r}
+print(paste("La ciudad que más horas de sol tiene en enero es:",df_sunny$City[which.max(df_sunny$Jan)],"en total", max(df_sunny$Jan)))
+```
+
+3- ¿Cual es la ciudad que más horas de sol totales tiene en los meses de Enero, Febrero y Marzo? (suma los 3 meses y encuentra la ciudad con el máximo)
+
+```{r}
+df_sunny$q1<- df_sunny$Jan + df_sunny$Feb + df_sunny$Mar
+print(paste("La ciudad que más horas de sol totales tiene en los meses de Enero, Febrero y Marzo es:",df_sunny$City[which.max(df_sunny$q1)],"en total", max(df_sunny$q1)))
+
+```
+
+4- ¿Cual es la ciudad que más horas de sol tiene en todo el año? (sumando todos los meses)
+
+```{r}
+df_sunny$Year <-gsub(',','',df_sunny$Year)
+df_sunny$Year <- as.numeric(df_sunny$Year)
+print(paste("La ciudad que más horas de sol tiene en todo el año es:",df_sunny$City[which.max(df_sunny$Year)],"en total", max(df_sunny$Year)))
+```
+
+5- En el dataset, ¿cual es el país que tiene más ciudades?. Muestra el número medio de horas mensuales en enero para las ciudades de ese país.
+
+```{r}
+paises <-table(df_sunny$Country)
+print(paste("El país que tiene más ciudades es: ",names(paises)[which.max(paises)], "en total",max(paises)))
+pais<-df_sunny[which(df_sunny=='United States'),]
+paste("El número medio de horas mensuales en enero para las ciudades de United States es:",round(mean(pais$Jan),2))
+
+```
+
+6- ¿Cual es el número medio de horas soleadas al mes en Madrid? ¿y su mediana?
+
+```{r}
+madrid <-  df_sunny[which(df_sunny$City =='Madrid' ),]
+mad<-c(madrid$Jan,madrid$Feb,madrid$Mar,madrid$Apr,madrid$May,madrid$Jun,madrid$Aug,madrid$Sep,madrid$Oct,madrid$Nov,madrid$Dec)
+paste("El número medio de horas soleadas al mes en Madrid es:",round(mean(mad),2)," y su mediana es:",median(mad))
+```
