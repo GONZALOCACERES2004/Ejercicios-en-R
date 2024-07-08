@@ -127,6 +127,21 @@ paste("El número medio de horas mensuales en enero para las ciudades de United 
 
 ```{r}
 madrid <-  df_sunny[which(df_sunny$City =='Madrid' ),]
-mad<-c(madrid$Jan,madrid$Feb,madrid$Mar,madrid$Apr,madrid$May,madrid$Jun,madrid$Aug,madrid$Sep,madrid$Oct,madrid$Nov,madrid$Dec)
+
+#creamos el vector con los valores de cada mes
+
+mad<-c(madrid$Jan,madrid$Feb,madrid$Mar,madrid$Apr,madrid$May,madrid$Jun,madrid$Jul,madrid$Aug,madrid$Sep,madrid$Oct,madrid$Nov,madrid$Dec)
+
+#calculamos la media y la mediana
 paste("El número medio de horas soleadas al mes en Madrid es:",round(mean(mad),2)," y su mediana es:",median(mad))
+
+#Creamos el vector con los valores a partir de los índices
+
+vec=as.numeric(madrid[1,c(which(names(madrid) == 'Jan'): which(names(madrid) == 'Dec'))])
+
+
+#calculamos la media y la mediana
+paste("El número medio de horas soleadas al mes en Madrid es:",round(mean(vec),2)," y su mediana es:",median(vec))
+
+
 ```
