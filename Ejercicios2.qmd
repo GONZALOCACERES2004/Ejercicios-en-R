@@ -1,0 +1,116 @@
+---
+title: "Ejercicios2"
+format: html
+editor: visual
+---
+
+## CSV edad española
+
+Usando el CSV del INE.¿Cual es la media de edad de la población española? ¿y la mediana? ¿la moda?
+
+$$
+    \bar{x} =  \frac{1}{\text{poblaciónTotal}} \sum _{i=1}^N edad_i · poblaciónConEdad_i 
+$$
+
+```{r}
+library(dplyr)
+library(tidyr)
+poblacion_raw<-read.csv("data/9663bsc.csv",skip=0,fileEncoding="ISO-8859-1",header=T, sep=';',stringsAsFactor=F)
+
+poblacion <- poblacion_raw |> mutate(Total=as.numeric(gsub("\\.","",Total))) |> pivot_wider(names_from = Sexo, values_from = Total)  |>
+ mutate(edad=as.numeric(gsub("año(s|)","",Edad.simple))) |> drop_na() |> select(-c(Periodo,Edad.simple)) |>
+ rename(Total='Ambos sexos') |> arrange(edad)
+```
+
+```{r}
+head(poblacion)
+```
+
+Primero calculamos la moda:
+
+```{r}
+moda <-poblacion$edad[poblacion$Total==max(poblacion$Total)]
+paste("La moda es: ",moda)
+```
+
+La mediana de la población:
+
+```{r}
+poblacion$prob_acu <- cumsum(poblacion$Total)/sum(poblacion$Total)
+mediana <- poblacion$edad[which.min(abs(poblacion$prob_acu - 0.5))]
+paste("La mediana es: ",mediana)
+```
+
+La media de la población:
+
+```{r}
+media <- round(sum(poblacion$edad*poblacion$Total)/sum(poblacion$Total))
+paste("La media es: ",media)
+```
+
+## Peso al nacer
+
+Leer el dataset que se encuentra en data/birthweight_reduced.csv.
+
+Para la columna Birthweight: Calcula la media de los dos grupos para madres fumadores y no fumadores. Calcula su intervalo de confianza.
+
+```{r}
+bwt <- read.csv("./data/birthweight_reduced.csv")
+
+resultado_si <-t.test(bwt$Birthweight[which(bwt$smoker=='1')],conf.level=0.95)
+resultado_no <-t.test(bwt$Birthweight[which(bwt$smoker=='0')],conf.level=0.95)
+
+cat("Madres fumadoras: media:",resultado_si$estimate, ", intervalo de confianza:[",resultado_si$conf.int[1],",",resultado_si$conf.int[2],"]","\n")
+
+
+cat("Madres no fumadoras: media:",resultado_no$estimate, ", intervalo de confianza:[",resultado_no$conf.int[1],",",resultado_no$conf.int[2],"]")
+```
+
+## Ejemplo probabilidad COVID
+
+Ejercicio se resuelve usando la distribución binomial. Supongamos que tenemos una población donde 5 de cada 1000 personas están infectadas.
+
+Pintar una curva donde se represente en el eje Y la probabilidad de encontrar al menos un contagiado en función del número de personas dado por el eje X.
+
+Esto se haría utilizando una función binomial donde la probabilidad de que alguien esté infectado es 5/1000. x sería el número de personas y es un valor que puede ir de 1 hasta 1000. Usa la función dbinom.
+
+```{r}
+p <- 5/1000
+num_personas <- 1:1000
+probabilidad <- 1 - dbinom(0,num_personas,p)
+
+plot(num_personas,probabilidad,type = "l")
+title("Probabilidad de encontrar al menos un contagiado")
+
+
+
+```
+
+Pintar una curva donde se represente en el eje Y la probabilidad de encontrar exactamente dos contagiados en función del número de personas dado por el eje X
+
+```{r}
+probabilidad <- dbinom(2,num_personas,p)
+plot(num_personas,probabilidad,type = "l")
+title("Probabilidad de encontrar dos contagiados")
+
+```
+
+Pintar una curva donde se represente en el eje Y la probabilidad de encontrar dos o más contagiados en función del número de personas dado por el eje X
+
+```{r}
+#probabilidad <- 1 - pbinom(1, num_personas, p)
+probabilidad <- 1 - (dbinom(0,num_personas,p)+dbinom(1,num_personas,p))
+plot(num_personas,probabilidad,type="l")
+title("Probabilidad de encontrar dos o mas contagiados")
+```
+
+Probabilida de encontar 5 o más personas contagiadas en una población de 1000
+
+```{r}
+#probabilidad <- 1 - pbinom(4, num_personas, p)
+
+probabilidad <- 1-(dbinom(0,num_personas,p)+dbinom(1,num_personas,p)+dbinom(2,num_personas,p)+dbinom(3,num_personas,p)+dbinom(4,num_personas,p))
+
+plot(num_personas,probabilidad,type ="l" )
+title("Probabilidad de encontrar 5 o mas contagiados")
+```
