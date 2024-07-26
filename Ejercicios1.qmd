@@ -47,6 +47,7 @@ fumadoras<-bwt[which(bwt$smoker=='YES'),]
 no_fumadoras<-bwt[which(bwt$smoker=='NO'),]
 paste("Hay",nrow(fumadoras), "Madres fumadoras")
 paste("Hay",nrow(no_fumadoras), "Madres no fumadoras")
+table(bwt$smoker)
 ```
 
 4- ¿Cual es el peso medio de los niños al nacer para las madres fumadoras y no fumadoras?
@@ -61,16 +62,24 @@ paste("El peso medio de los niños al nacer para las madres no fumadoras es:",ro
 ```{r}
 (paste("Varianza para hijos de madres fumadoras:",var(fumadoras$Birthweight)))
 (paste("Varianza para hijos de madres no fumadoras:",var(no_fumadoras$Birthweight)))
+
+library(tidyverse)
+bwt |> group_by(smoker) |> summarise(peso_medio=mean(Birthweight), numero_casos=n(), varianza=var(Birthweight))
 ```
 
 6- Pinta un Boxplot del peso para cada uno de los grupos
 
 ```{r}
 boxplot(fumadoras$Birthweight,range = 1)
-
-
 boxplot(no_fumadoras$Birthweight,range = 1)
 
+smoker <- bwt$smoker
+smoker_factor <- as.factor(smoker)
+plot(smoker_factor, bwt$Birthweight, xlab = "Smokers", ylab = "Birthweight")
+
+ggplot(data=bwt,aes(x=smoker, y=Birthweight,color=smoker))+geom_boxplot()+
+   scale_color_discrete(name="Fumadoras")+  xlab('Fumadora')+ylab('Peso')+
+  ggtitle("Birthweight ", subtitle = "smoker")
 
 ```
 
@@ -94,22 +103,24 @@ paste("Hay", length(table(df_sunny$City)), "ciudades")
 2- ¿Cual es la ciudad que más horas de sol tiene en enero?
 
 ```{r}
-print(paste("La ciudad que más horas de sol tiene en enero es:",df_sunny$City[which.max(df_sunny$Jan)],"en total", max(df_sunny$Jan)))
+#print(paste("La ciudad que más horas de sol tiene en enero es:",df_sunny$City[which.max(df_sunny$Jan)],"en total", max(df_sunny$Jan)))
+df_sunny[df_sunny$Jan==max(df_sunny$Jan), c("Country","City")]
 ```
 
 3- ¿Cual es la ciudad que más horas de sol totales tiene en los meses de Enero, Febrero y Marzo? (suma los 3 meses y encuentra la ciudad con el máximo)
 
 ```{r}
 df_sunny$q1<- df_sunny$Jan + df_sunny$Feb + df_sunny$Mar
+#
 print(paste("La ciudad que más horas de sol totales tiene en los meses de Enero, Febrero y Marzo es:",df_sunny$City[which.max(df_sunny$q1)],"en total", max(df_sunny$q1)))
+#df_sunny[df_sunny$q1==max(df_sunny$q1), c("Country","City")]
 
 ```
 
 4- ¿Cual es la ciudad que más horas de sol tiene en todo el año? (sumando todos los meses)
 
 ```{r}
-df_sunny$Year <-gsub(',','',df_sunny$Year)
-df_sunny$Year <- as.numeric(df_sunny$Year)
+df_sunny$Year <- as.numeric(gsub(',','',df_sunny$Year))
 print(paste("La ciudad que más horas de sol tiene en todo el año es:",df_sunny$City[which.max(df_sunny$Year)],"en total", max(df_sunny$Year)))
 ```
 
@@ -128,13 +139,6 @@ paste("El número medio de horas mensuales en enero para las ciudades de United 
 ```{r}
 madrid <-  df_sunny[which(df_sunny$City =='Madrid' ),]
 
-#creamos el vector con los valores de cada mes
-
-mad<-c(madrid$Jan,madrid$Feb,madrid$Mar,madrid$Apr,madrid$May,madrid$Jun,madrid$Jul,madrid$Aug,madrid$Sep,madrid$Oct,madrid$Nov,madrid$Dec)
-
-#calculamos la media y la mediana
-paste("El número medio de horas soleadas al mes en Madrid es:",round(mean(mad),2)," y su mediana es:",median(mad))
-
 #Creamos el vector con los valores a partir de los índices
 
 vec=as.numeric(madrid[1,c(which(names(madrid) == 'Jan'): which(names(madrid) == 'Dec'))])
@@ -143,5 +147,9 @@ vec=as.numeric(madrid[1,c(which(names(madrid) == 'Jan'): which(names(madrid) == 
 #calculamos la media y la mediana
 paste("El número medio de horas soleadas al mes en Madrid es:",round(mean(vec),2)," y su mediana es:",median(vec))
 
+cat("La media es:",
+mean(unlist(df_sunny[df_sunny$City=="Madrid",3:14])),"\n")
 
+cat("La mediana es:",
+median(unlist(df_sunny[df_sunny$City=="Madrid",3:14])))
 ```
